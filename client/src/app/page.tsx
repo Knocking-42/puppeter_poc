@@ -1,17 +1,40 @@
 "use client";
 
-import Image from "next/image";
-import axios from "axios";
-const ReactDOMServer = require("react-dom/server");
+import { useState } from "react";
+
+import apiManager from "@/app/api/apiManager";
 
 export default function Home() {
-  const handlePdfConvert = async () => {
-    const htmlString = ReactDOMServer.renderToString(<Home />);
+  const [profileSummary, setProfileSummary] = useState<string>("");
+
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setProfileSummary(event.target.value);
+  };
+
+  const handleSavingPdf = async () => {
     try {
-      const response = await axios.post("http://localhost:3000/pdf", {
-        html: htmlString,
-      });
-      console.log(response);
+      const res = await apiManager.post(
+        "/pdf",
+        {
+          profileSummary,
+        },
+        {
+          responseType: "arraybuffer",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/pdf",
+          },
+        }
+      );
+
+      // console.log(res);
+
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "file.pdf"); //or any other extension
+      document.body.appendChild(link);
+      link.click();
     } catch (error) {
       console.log(error);
     }
@@ -19,12 +42,10 @@ export default function Home() {
 
   return (
     <>
-      <a href="http://naver.com">네이버</a>
-      <p style={{ color: "#ff0000" }}>
-        내 이름은 승운송, 글로벌 기업의 인재로 거듭나고 있지.
-      </p>
-
-      <button onClick={handlePdfConvert}>PDF 변환하기 </button>
+      <div className="container">
+        <textarea value={profileSummary} onChange={handleChange} />
+        <button onClick={handleSavingPdf}>PDF 저장하기</button>
+      </div>
     </>
   );
 }
