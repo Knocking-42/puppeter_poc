@@ -8,7 +8,7 @@ export class PdfGenerationController {
 
   @Post()
   async generatePdf(@Body() body, @Res() res: Response) {
-    const pdfBuffer = await this.pdfGenerationService.generatePdf(body.data);
+    const pdfBuffer = await this.pdfGenerationService.generatePdf(body.html);
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=test.pdf');

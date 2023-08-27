@@ -11,12 +11,12 @@ export default function Home() {
     setProfileSummary(event.target.value);
   };
 
-  const handleSavingPdf = async () => {
+  const sendHtml = async () => {
     try {
       const res = await apiManager.post(
         "/pdf",
         {
-          profileSummary,
+          html: document.getElementById("jasong")?.outerHTML,
         },
         {
           responseType: "arraybuffer",
@@ -41,11 +41,12 @@ export default function Home() {
   };
 
   return (
-    <>
-      <div className="container">
-        <textarea value={profileSummary} onChange={handleChange} />
-        <button onClick={handleSavingPdf}>PDF 저장하기</button>
-      </div>
-    </>
+    <div>
+      <textarea value={profileSummary} onChange={handleChange} />
+      <button onClick={sendHtml}>HTML 전송하기</button>
+      <h1 id="jasong" className="text-sky-500">
+        안녕하세요
+      </h1>
+    </div>
   );
 }
