@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import * as puppeteer from 'puppeteer';
-import * as handlebars from 'handlebars';
 import * as fs from 'fs/promises';
+import * as handlebars from 'handlebars';
+import * as path from 'path';
+import * as puppeteer from 'puppeteer';
 
 @Injectable()
 export class PdfGenerationService {
-  async renderTemplate(templatePath, data) {
-    const templateSource = await fs.readFile(templatePath, 'utf-8');
+  async renderTemplate(bodyData: string) {
+    const templateSource = await fs.readFile(
+      path.join(__dirname, '../../', 'views', 'index.hbs'),
+      'utf-8',
+    );
     const template = handlebars.compile(templateSource);
-    return template(data);
+    return template({
+      body: bodyData,
+    });
   }
 
   async generatePdf(html: string): Promise<Buffer> {
@@ -17,6 +23,9 @@ export class PdfGenerationService {
     console.log(html);
     await page.setContent(html);
     await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 2 });
+    await page.addStyleTag({
+      path: '',
+    });
     const pdfBuffer = await page.pdf({
       path: 'test.pdf',
       pageRanges: '1-2',
